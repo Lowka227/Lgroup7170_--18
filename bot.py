@@ -1,4 +1,6 @@
-import telebot, random
+import telebot
+import random
+import os
 from my_token import TOKEN
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 # Замени 'TOKEN' на токен твоего бота
@@ -7,7 +9,11 @@ bot = telebot.TeleBot(TOKEN)
     
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Привет! Я твой Telegram бот. Напиши что-нибудь!")
+    bot.reply_to(message, "Привет! Я твой Telegram бот. Напиши /help для списка команд")
+
+@bot.message_handler(commands=['help'])
+def send_hello(message):
+    bot.reply_to(message, "Список команд:\n/start - запускает бота\n/hello - приветсвует тебя\n/bye - прощается с тобой\n/rand - пишет случайное число от 1 до 10\n/heh - пишет 5 раз 'he',если написать цифру после команды через пробел,то бот повторит столько раз,сколько указали\n/game - запускает мини-игру\n/mem - отправляет случайный мем,связанный с программированием\n/animals - отправляет случайный мем с животными")
     
 @bot.message_handler(commands=['hello'])
 def send_hello(message):
@@ -25,11 +31,22 @@ def send_bye(message):
 @bot.message_handler(commands=['heh'])
 def send_heh(message):
     count_heh = int(message.text.split()[1]) if len(message.text.split()) > 1 else 5
-    bot.reply_to(message, "h" * count_heh)
+    bot.reply_to(message, "he" * count_heh)
 
 @bot.message_handler(commands=['game'])
 def send_keys(msg):
     bot.send_message(msg.chat.id, 'Выбери кнопку', reply_markup=gen_markup())
+
+@bot.message_handler(commands=['mem'])
+def send_mem(message):
+    with open('images/' + random.choice(os.listdir('images')), 'rb') as f:  
+        bot.send_photo(message.chat.id, f)
+
+@bot.message_handler(commands=['animals'])
+def send_animals(message):
+    with open('animals/' + random.choice(os.listdir('animals')), 'rb') as f:  
+        bot.send_photo(message.chat.id, f)   
+
 
 def gen_markup():
     markup = InlineKeyboardMarkup()
